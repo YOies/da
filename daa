@@ -1,3 +1,4 @@
+--s
 repeat wait() until game:IsLoaded()
 local args = {
     [1] = "Vote",
@@ -51,8 +52,6 @@ mt.__namecall = newcclosure(function(self, ...)
     return oldNamecall(self, ...)
 end)
 setreadonly(mt, true)
-spawn(function()
     while task.wait() do 
         writefile("b.txt", httpService:JSONEncode(towerRecord))
     end
-end)
