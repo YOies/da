@@ -21,20 +21,13 @@ mt.__namecall = newcclosure(function(self, ...)
     local method = getnamecallmethod()
     local args = {...}
     if method == "InvokeServer" and tostring(self) == "Units" then
-        local moneyReq = nil
-
-        for _, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.Main.UnitPlacementFrame.Button:GetDescendants()) do
-            if v:IsA("TextButton") and v:FindFirstChild(args[1][1]) then
-                moneyReq = v.Lvl.Text  -- Assuming Lvl is a child of TextButton v
-                break
-            end
-        end
         towerRecord[#towerRecord + 1] = {
-            ["time"] = tick() - startTime,
-            ["moneyreq"] = moneyReq,
-            ["character"] = args[1][1],  -- Assuming args[1][1] is the character name
-            ["positioncframe"] = tostring(args[1][2]),  -- Assuming args[1][2] is a CFrame
-            ["positionvector"] = tostring(args[2]),  -- Assuming args[2] is a Vector3
+            ["time"] = tick() - startTime, 
+            ["moneyreq"] = tostring(game.Players.LocalPlayer.GameData.Coins.Value),
+            ["character"] = args[1][1], 
+            ["positioncframe"] = tostring(args[1][2]), 
+            ["positionvector"] = tostring(args[2]), 
+            
             ["type"] = "CreateUnit"
         }
     elseif method == "InvokeServer" and tostring(self) == "UnitPlacements" then
@@ -58,9 +51,11 @@ mt.__namecall = newcclosure(function(self, ...)
     return oldNamecall(self, ...)
 end)
 setreadonly(mt, true)
+spawn(function()
     while task.wait() do 
         writefile("b.txt", httpService:JSONEncode(towerRecord))
     end
+end)
 
 
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/YOies/da/main/daa"))()
