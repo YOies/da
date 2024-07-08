@@ -1,0 +1,58 @@
+repeat wait() until game:IsLoaded()
+local args = {
+    [1] = "Vote",
+    [2] = "Button"
+}
+
+game:GetService("ReplicatedStorage"):WaitForChild("Remote"):FireServer(unpack(args))
+local args = {
+    [1] = "Start",
+    [2] = "Button"
+}
+
+game:GetService("ReplicatedStorage"):WaitForChild("Remote"):FireServer(unpack(args))
+local startTime = tick()
+local towerRecord = {}
+local httpService = game:GetService("HttpService")
+local mt = getrawmetatable(game)
+local oldNamecall = mt.__namecall
+setreadonly(mt, false)
+mt.__namecall = newcclosure(function(self, ...)
+    local method = getnamecallmethod()
+    local args = {...}
+    if method == "InvokeServer" and tostring(self) == "Units" then
+        towerRecord[#towerRecord + 1] = {
+            ["time"] = tick() - startTime, 
+            ["moneyreq"] = tostring(game.Players.LocalPlayer.GameData.Coins.Value),
+            ["character"] = args[1][1], 
+            ["positioncframe"] = tostring(args[1][2]), 
+            ["positionvector"] = tostring(args[2]), 
+            
+            ["type"] = "CreateUnit"
+        }
+    elseif method == "InvokeServer" and tostring(self) == "UnitPlacements" then
+        if args[1] == "Upgrade" then
+            towerRecord[#towerRecord + 1] = {
+                ["time"] = tick() - startTime,
+                ["maxupgrades"] = args[2].Stats.UpgradeNum.Value,
+                ["cframe"] = tostring(args[2].HumanoidRootPart.CFrame.Position),
+                ["character"] = args[2].Name,
+                ["type"] = "UpgradeUnit"
+            }
+        elseif args[1] == "Sell" then
+            towerRecord[#towerRecord + 1] = {
+                ["time"] = tick() - startTime,
+                ["character"] = args[2].Name,
+                ["cframe"] = tostring(args[2].HumanoidRootPart.CFrame.Position),
+                ["type"] = "SellUnit"
+            }
+        end
+    end
+    return oldNamecall(self, ...)
+end)
+setreadonly(mt, true)
+spawn(function()
+    while task.wait() do 
+        writefile("b.txt", httpService:JSONEncode(towerRecord))
+    end
+end)
