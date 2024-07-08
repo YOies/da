@@ -1,4 +1,3 @@
---d
 repeat wait() until game:IsLoaded()
 local args = {
     [1] = "Vote",
@@ -31,12 +30,12 @@ mt.__namecall = newcclosure(function(self, ...)
             end
         end
         towerRecord[#towerRecord + 1] = {
-            time = tick() - startTime,
-            moneyreq = moneyReq,
-            character = args[1][1],  -- Assuming args[1][1] is the character name
-            positioncframe = tostring(args[1][2]),  -- Assuming args[1][2] is a CFrame
-            positionvector = tostring(args[2]),  -- Assuming args[2] is a Vector3
-            type = "CreateUnit"
+            ["time"] = tick() - startTime,
+            ["moneyreq"] = moneyReq,
+            ["character"] = args[1][1],  -- Assuming args[1][1] is the character name
+            ["positioncframe"] = tostring(args[1][2]),  -- Assuming args[1][2] is a CFrame
+            ["positionvector"] = tostring(args[2]),  -- Assuming args[2] is a Vector3
+            ["type"] = "CreateUnit"
         }
     elseif method == "InvokeServer" and tostring(self) == "UnitPlacements" then
         if args[1] == "Upgrade" then
@@ -62,3 +61,7 @@ setreadonly(mt, true)
     while task.wait() do 
         writefile("b.txt", httpService:JSONEncode(towerRecord))
     end
+
+
+--loadstring(game:HttpGet("https://raw.githubusercontent.com/YOies/da/main/daa"))()
+--game:GetService("ReplicatedStorage").Teleport:InvokeServer("Retry")
