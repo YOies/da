@@ -1,4 +1,4 @@
---dad
+--ds
     repeat wait() until game:IsLoaded()
     local args = {
         [1] = "Vote",
@@ -27,7 +27,7 @@
                 ["OldTime"] = tostring(workspace.Maingame.Time.Value),
                 ["moneyreq"] = tostring(game.Players.LocalPlayer.GameData.Coins.Value),
                 ["character"] = args[1][1], 
-                ["cframe"] = tostring(args[1][1].HumanoidRootPart.CFrame),
+                ["cframe"] = tostring(workspace.Maingame.Unit[args[1][1]].HumanoidRootPart.CFrame),
                 ["positioncframe"] = tostring(args[1][2]), 
                 ["positionvector"] = tostring(args[2]),  
                 ["type"] = "CreateUnit"
