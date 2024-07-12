@@ -1,4 +1,3 @@
---ds
     repeat wait() until game:IsLoaded()
     local args = {
         [1] = "Vote",
@@ -27,9 +26,9 @@
                 ["OldTime"] = tostring(workspace.Maingame.Time.Value),
                 ["moneyreq"] = tostring(game.Players.LocalPlayer.GameData.Coins.Value),
                 ["character"] = args[1][1], 
-                ["cframe"] = tostring(workspace.Maingame.Unit[args[1][1]].HumanoidRootPart.CFrame),
                 ["positioncframe"] = tostring(args[1][2]), 
-                ["positionvector"] = tostring(args[2]),  
+                ["positionvector"] = tostring(args[2]), 
+                
                 ["type"] = "CreateUnit"
             }
         elseif method == "InvokeServer" and tostring(self) == "UnitPlacements" then
@@ -38,7 +37,7 @@
                     ["time"] = tick() - startTime,
                     ["maxupgrades"] = args[2].Stats.UpgradeNum.Value,
                     ["OldTime"] = tostring(workspace.Maingame.Time.Value),
-                    ["cframe"] = tostring(args[2].HumanoidRootPart.CFrame),
+                    ["cframe"] = tostring(args[2].HumanoidRootPart.CFrame.Position),
                     ["character"] = args[2].Name,
                     ["type"] = "UpgradeUnit"
                 }
@@ -47,7 +46,7 @@
                     ["time"] = tick() - startTime,
                     ["character"] = args[2].Name,
                     ["OldTime"] = tostring(workspace.Maingame.Time.Value),
-                    ["cframe"] = tostring(args[2].HumanoidRootPart.CFrame),
+                    ["cframe"] = tostring(args[2].HumanoidRootPart.CFrame.Position),
                     ["type"] = "SellUnit"
                 }
             end
@@ -58,3 +57,7 @@
         while task.wait() do 
             writefile("c.txt", httpService:JSONEncode(towerRecord))
         end
+
+
+--loadstring(game:HttpGet("https://raw.githubusercontent.com/YOies/da/main/daa"))()
+--game:GetService("ReplicatedStorage").Teleport:InvokeServer("Retry")
