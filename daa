@@ -1,4 +1,5 @@
     repeat wait() until game:IsLoaded()
+    wait(1)
     local args = {
         [1] = "Vote",
         [2] = "Button"
@@ -30,12 +31,12 @@
                 ["positionvector"] = tostring(args[2]), 
                 
                 ["type"] = "CreateUnit"
-            }
+            }   
         elseif method == "InvokeServer" and tostring(self) == "UnitPlacements" then
             if args[1] == "Upgrade" then
                 towerRecord[#towerRecord + 1] = {
                     ["time"] = tick() - startTime,
-                    ["maxupgrades"] = args[2].Stats.UpgradeNum.Value,
+                    ["upgradeprices"] = tostring(args[2].Stats.upgradeprice.Value),
                     ["OldTime"] = tostring(workspace.Maingame.Time.Value),
                     ["cframe"] = tostring(args[2].HumanoidRootPart.CFrame.Position),
                     ["character"] = args[2].Name,
@@ -61,3 +62,4 @@
 
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/YOies/da/main/daa"))()
 --game:GetService("ReplicatedStorage").Teleport:InvokeServer("Retry")
+
