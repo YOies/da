@@ -1,65 +1,2154 @@
-    repeat wait() until game:IsLoaded()
-    wait(1)
-    local args = {
-        [1] = "Vote",
-        [2] = "Button"
-    }
+game:GetService("Players").LocalPlayer.Idled:Connect(function()
+    local vu = game:GetService("VirtualUser")
+    vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+    task.wait(1)
+    vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+end)
 
-    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):FireServer(unpack(args))
-    local args = {
-        [1] = "Start",
-        [2] = "Button"
-    }
+if game.PlaceId ~= 72829404259339 then return end 
 
-    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):FireServer(unpack(args))
-    local startTime = tick()
-    local towerRecord = {}
-    local httpService = game:GetService("HttpService")
-    local mt = getrawmetatable(game)
-    local oldNamecall = mt.__namecall
-    setreadonly(mt, false)
-    mt.__namecall = newcclosure(function(self, ...)
-        local method = getnamecallmethod()
-        local args = {...}
-        if method == "InvokeServer" and tostring(self) == "Units" then
-            towerRecord[#towerRecord + 1] = {
-                ["time"] = tick() - startTime, 
-                ["OldTime"] = tostring(workspace.Maingame.Time.Value),
-                ["moneyreq"] = tostring(game.Players.LocalPlayer.GameData.Coins.Value),
-                ["character"] = args[1][1], 
-                ["positioncframe"] = tostring(args[1][2]), 
-                ["positionvector"] = tostring(args[2]), 
+getgenv().WantedNotify, getgenv().WantedRangers, getgenv().WantedItemsForChallenge, 
+getgenv().WantedUnitForEvo, getgenv().WantedItemsForEasterEvent = {}, {}, {}, {}, {}
+
+local sound = Instance.new("Sound")
+sound.SoundId = "rbxassetid://" .. 9043722780
+sound.Volume = 1
+sound.Parent = workspace
+sound:Play()
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "DraggableControlButton"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local Button = Instance.new("TextButton")
+Button.Size = UDim2.new(0, 100, 0, 40)
+Button.Position = UDim2.new(0.9, 0, 0.1, 0)
+Button.Text = "Open/Close"
+Button.BackgroundColor3 = Color3.fromRGB(60, 180, 75)
+Button.TextColor3 = Color3.new(1, 1, 1)
+Button.Font = Enum.Font.SourceSansBold
+Button.TextSize = 18
+Button.Active = true
+Button.Draggable = true
+Button.Parent = ScreenGui
+
+Button.MouseButton1Click:Connect(function()
+    local vim = game:GetService("VirtualInputManager")
+    vim:SendKeyEvent(true, "LeftControl", false, game)
+    vim:SendKeyEvent(false, "LeftControl", false, game)
+end)
+
+local MacLib = loadstring(game:HttpGet("https://github.com/biggaboy212/Maclib/releases/latest/download/maclib.txt"))()
+
+local Window = MacLib:Window({
+    Title = "L-Hub",
+    Subtitle = "Free | V0.48",
+    Size = UDim2.fromOffset(800, 650),
+    DragStyle = 2,
+    DisabledWindowControls = {},
+    ShowUserInfo = false,
+    Keybind = Enum.KeyCode.LeftControl,
+    AcrylicBlur = false,
+})
+
+local globalSettings = {
+    UIBlurToggle = Window:GlobalSetting({
+        Name = "UI Blur",
+        Default = Window:GetAcrylicBlurState(),
+        Callback = function(bool)
+            Window:SetAcrylicBlurState(false)
+            Window:Notify({
+                Title = Window.Settings.Title,
+                Description = (bool and "Enabled" or "Disabled") .. " UI Blur",
+                Lifetime = 5
+            })
+        end,
+    }),
+    NotificationToggler = Window:GlobalSetting({
+        Name = "Notifications",
+        Default = Window:GetNotificationsState(),
+        Callback = function(bool)
+            Window:SetNotificationsState(bool)
+            Window:Notify({
+                Title = Window.Settings.Title,
+                Description = (bool and "Enabled" or "Disabled") .. " Notifications",
+                Lifetime = 5
+            })
+        end,
+    }),
+    ShowUserInfo = Window:GlobalSetting({
+        Name = "Show User Info",
+        Default = Window:GetUserInfoState(),
+        Callback = function(bool)
+            Window:SetUserInfoState(false)
+            Window:Notify({
+                Title = Window.Settings.Title,
+                Description = (bool and "Showing" or "Redacted") .. " User Info",
+                Lifetime = 5
+            })
+        end,
+    })
+}
+
+Window:Dialog({
+    Title = "L-Hub",
+    Description = "Script still in beta, report bugs in https://discord.gg/xhUcqNUfr9 \nScript made by kazoun",
+    Buttons = {
+        {
+            Name = "Copy Link",
+            Callback = function() setclipboard("https://discord.gg/xhUcqNUfr9") end,
+        },
+    }
+})
+
+local tabGroups = { TabGroup1 = Window:TabGroup() }
+
+local tabs = {
+    Main = tabGroups.TabGroup1:Tab({ Name = "Main" }),
+    Info = tabGroups.TabGroup1:Tab({ Name = "Info" }),
+    Upgrade = tabGroups.TabGroup1:Tab({ Name = "Place & Upgrade" }),
+    Evo = tabGroups.TabGroup1:Tab({ Name = "Evolve" }),
+    Misc = tabGroups.TabGroup1:Tab({ Name = "Misc" }),
+    Settings = tabGroups.TabGroup1:Tab({ Name = "Settings" })
+}
+
+local sections = {}
+sections.MainSection1 = tabs.Main:Section({ Side = "Left" })
+sections.MainSection2 = tabs.Main:Section({ Side = "Right" })
+sections.MainSection3 = tabs.Main:Section({ Side = "Left" })
+sections.MainSection15 = tabs.Main:Section({ Side = "Right" })
+sections.MainSection4 = tabs.Info:Section({ Side = "Left" })
+sections.MainSection5 = tabs.Info:Section({ Side = "Right" })
+sections.MainSection6 = tabs.Info:Section({ Side = "Left" })
+sections.MainSection8 = tabs.Upgrade:Section({ Side = "Right" })
+sections.MainSection10 = tabs.Upgrade:Section({ Side = "Right" })
+sections.MainSection14 = tabs.Upgrade:Section({ Side = "Left" })
+sections.MainSection19 = tabs.Evo:Section({ Side = "Left" })
+sections.MainSection20 = tabs.Evo:Section({ Side = "Right" })
+sections.MainSection22 = tabs.Evo:Section({ Side = "Right" })
+sections.MainSection24 = tabs.Evo:Section({ Side = "Left" })
+sections.MainSection11 = tabs.Misc:Section({ Side = "Left" })
+sections.MainSection16 = tabs.Misc:Section({ Side = "Left" })
+sections.MainSection18 = tabs.Misc:Section({ Side = "Right" })
+sections.MainSection17 = tabs.Misc:Section({ Side = "Right" })
+sections.MainSection7 = tabs.Misc:Section({ Side = "Right" })
+sections.MainSection12 = tabs.Settings:Section({ Side = "Right" })
+sections.MainSection13 = tabs.Settings:Section({ Side = "Right" })
+
+sections.MainSection1:Header({ Name = "AutoJoin-Type World For All Modes:" })
+
+local WorldSelectForAutoComplete = sections.MainSection1:Dropdown({
+    Name = "Select Type To Auto Join:",
+    Multi = false,
+    Required = true,
+    Options = {"Story", "Ranger", "Raid", "Challenge", "Infinity Castle", "Boss-Event", "Easter-Event", "AFK Chamber"},
+    Default = "",
+    Callback = function(Value) getgenv().TypePortal = Value end,
+}, "PortalSelect")
+
+sections.MainSection2:Header({ Name = "Story Configs:" })
+
+local remoteServer = game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server")
+local playRoomEvent = remoteServer:WaitForChild("PlayRoom"):WaitForChild("Event")
+local playerGui = game:GetService("Players").LocalPlayer.PlayerGui
+
+sections.MainSection2:Dropdown({
+    Name = "World:",
+    Multi = false,
+    Required = true,
+    Options = {"OnePiece", "Namek", "DemonSlayer", "Naruto", "OPM"},
+    Default = "",
+    Callback = function(Value) getgenv().WorldSelect = Value end,
+}, "SelectWorldStory")
+
+sections.MainSection2:Dropdown({
+    Name = "Act:",
+    Multi = false,
+    Required = true,
+    Options = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
+    Default = "",
+    Callback = function(Value) getgenv().ActSelect = Value end,
+}, "SelectActStory")
+
+sections.MainSection2:Dropdown({
+    Name = "Difficulty:",
+    Multi = false,
+    Required = true,
+    Options = {"Normal", "Hard", "Nightmare"},
+    Default = "",
+    Callback = function(Value) getgenv().DifficultySelect = Value end,
+}, "SelectDifficultySelect")
+
+sections.MainSection2:Header({ Name = "Ranger Configs:" })
+
+sections.MainSection2:Dropdown({
+    Name = "World:",
+    Multi = false,
+    Required = true,
+    Options = {"OnePiece", "Namek", "DemonSlayer", "Naruto", "OPM"},
+    Default = "",
+    Callback = function(Value) getgenv().WorldSelectRanger = Value end,
+}, "SelectWorldStoryRanger")
+
+sections.MainSection2:Dropdown({
+    Name = "Act:",
+    Multi = false,
+    Required = true,
+    Options = {"1", "2", "3"},
+    Default = "",
+    Callback = function(Value) getgenv().ActSelectRanger = Value end,
+}, "SelectActRanger")
+
+local join = sections.MainSection1:Toggle({
+    Name = "Create Config Type World",
+    Default = false,
+    Callback = function(value)
+        getgenv().CreatePortal = value
+        if not value then return end
+        if game:GetService("Players").LocalPlayer:FindFirstChild("UnitsFolder") then return end
+
+        task.spawn(function()
+            while getgenv().CreatePortal do
+                if getgenv().TypePortal == "Story" then
+                    if not playerGui.PlayRoom.Main.GameStage.Visible then
+                        playRoomEvent:FireServer("Create")
+                        task.wait(.5)
+                        
+                        playRoomEvent:FireServer("Change-World", {World = getgenv().WorldSelect})
+                        task.wait(.5)
+                        
+                        playRoomEvent:FireServer("Change-Chapter", {
+                            Chapter = getgenv().WorldSelect .. "_Chapter" .. tostring(getgenv().ActSelect)
+                        })
+                        task.wait(1.5)
+                        
+                        playRoomEvent:FireServer("Change-Difficulty", {Difficulty = getgenv().DifficultySelect})
+                        task.wait(.5)
+                        
+                        playRoomEvent:FireServer("Submit")
+                        task.wait(.3)
+                        playRoomEvent:FireServer("Start")
+                        break
+                    end
+                elseif getgenv().TypePortal == "Ranger" then
+                    if not playerGui.PlayRoom.Main.GameStage.Visible then
+                        playRoomEvent:FireServer("Create")
+                        task.wait(.3)
+                        
+                        playRoomEvent:FireServer("Change-Mode", {Mode = "Ranger Stage"})
+                        task.wait(.3)
+                        
+                        playRoomEvent:FireServer("Change-World", {World = getgenv().WorldSelectRanger})
+                        task.wait(.3)
+                        
+                        playRoomEvent:FireServer("Change-Chapter", {
+                            Chapter = getgenv().WorldSelectRanger .. "_RangerStage" .. getgenv().ActSelectRanger
+                        })
+                        task.wait(.3)
+                        
+                        playRoomEvent:FireServer("Submit")
+                        task.wait(.3)
+                        
+                        playRoomEvent:FireServer("Start")
+                        break
+                    end
+                elseif getgenv().TypePortal == "Raid" or getgenv().TypePortal == "Infinity Castle" then
+                    return
+                elseif getgenv().TypePortal == "AFK Chamber" then
+                    if not game:GetService("Players").LocalPlayer.PlayerGui.AFKChamber.Enabled then
+                        remoteServer:WaitForChild("Lobby"):WaitForChild("AFKWorldTeleport"):FireServer()
+                        break
+                    end
+                elseif getgenv().TypePortal == "Boss-Event" then
+                    playRoomEvent:FireServer("Boss-Event")
+                    break
+                elseif getgenv().TypePortal == "Challenge" then
+                    playRoomEvent:FireServer("Create", {CreateChallengeRoom = true})
+                    task.wait(.3)
+                    playRoomEvent:FireServer("Start")
+                    break
+                elseif getgenv().TypePortal == "Easter-Event" then
+                    playRoomEvent:FireServer("Create")
+                    task.wait(.3)
+                    playRoomEvent:FireServer("Easter-Event")
+                    task.wait(.3)
+                    playRoomEvent:FireServer("Start")
+                    break
+                end
+                task.wait(.5)
+            end
+        end)
+    end,
+}, "CreatePortal")
+
+sections.MainSection3:Header({ Name = "In-Match Configs:" })
+
+sections.MainSection3:Toggle({
+    Name = "Auto Vote Start",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoVoteStart = value
+        if not value then return end
+        
+        task.spawn(function()
+            while getgenv().AutoVoteStart do
+                if playerGui.HUD.InGame.VotePlaying.Visible then
+                    remoteServer:WaitForChild("OnGame"):WaitForChild("Voting"):WaitForChild("VotePlaying"):FireServer()
+                end
+                task.wait(.5)
+                if not getgenv().AutoVoteStart then break end
+            end
+        end)
+    end,
+}, "AutoVoteStartToggle")
+
+sections.MainSection3:Toggle({
+    Name = "Auto Play",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoSelectCard = value
+        if not value then return end
+        
+        task.spawn(function()
+            while getgenv().AutoSelectCard do
+                if game:GetService("ReplicatedStorage").Player_Data[game.Players.LocalPlayer.Name].Data.AutoPlay.Value == false then
+                    remoteServer:WaitForChild("Units"):WaitForChild("AutoPlay"):FireServer()
+                end
+                task.wait(.5)
+                if not getgenv().AutoSelectCard then break end
+            end
+        end)
+    end,
+}, "AutoPlayToggle")
+
+sections.MainSection3:Toggle({
+    Name = "Auto UP Maximum Yen [In-Match]",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoUpgradeYen = value
+        if value then
+            Window:Dialog({
+                Title = "L-hub notify",
+                Description = "this upgrade is for in-match not in lobby. Which mean u need max Yen to upgrade it.",
+                Buttons = {{Name = "Bet daddy kazoun~", Callback = function() end}}
+            })
+        end
+        
+        if not value then return end
+        
+        task.spawn(function()
+            while getgenv().AutoUpgradeYen do
+                remoteServer:WaitForChild("Gameplay"):WaitForChild("StatsManager"):FireServer("MaximumYen")
+                task.wait(.5)
+                if not getgenv().AutoUpgradeYen then break end
+            end
+        end)
+    end,
+}, "AutoUpgradeYenToggle")
+
+sections.MainSection3:Toggle({
+    Name = "Auto Remove Enemies [Visual]",
+    Default = false,
+    Callback = function(value)
+        getgenv().RemoveEnemies = value
+        if not value then return end
+        
+        task.spawn(function()
+            local enemyFolder = workspace.Agent.EnemyT
+            while getgenv().RemoveEnemies do
+                for _, enemy in ipairs(enemyFolder:GetChildren()) do
+                    if enemy:IsA("Part") then
+                        enemy:Destroy()
+                    end
+                end
+                task.wait(.5)
+                if not getgenv().RemoveEnemies then break end
+            end
+        end)
+    end,
+}, "AutoRemoveEnemiesToggle")
+
+sections.MainSection3:Input({
+    Name = "Enter Distance To Auto Ult:",
+    Placeholder = "Input",
+    AcceptedCharacters = "All",
+    Callback = function(input)
+        Window:Notify({
+            Title = Window.Settings.Title,
+            Description = "Successfully set distance for auto ult to " .. input
+        })
+    end,
+    onChanged = function(input)
+        getgenv().NumberUlt = tonumber(input) or 20 
+    end,
+}, "DistanceUlt")
+
+sections.MainSection3:Toggle({
+    Name = "Auto Ultimate If Enemies Near",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoUlt = value
+        if value then
+            Window:Dialog({
+                Title = "L-hub notify",
+                Description = "if you turn on auto-remove enemies then this feature wont working.",
+                Buttons = {{Name = "Bet daddy kazoun~", Callback = function() end}}
+            })
+        end
+        
+        if not value then return end
+        
+        task.spawn(function()
+            local unitFolder = workspace.Agent.UnitT
+            local enemyFolder = workspace.Agent.EnemyT
+            local ultimateRemote = remoteServer:WaitForChild("Units"):WaitForChild("Ultimate")
+            
+            while getgenv().AutoUlt do
+                for _, unit in ipairs(unitFolder:GetChildren()) do
+                    if unit:IsA('Part') and unit:FindFirstChild("Info") and unit.Info.ActiveAbility.Value ~= "" then
+                        local closestEnemy = nil
+                        local shortestDistance = tonumber(getgenv().NumberUlt) or 20
+                        
+                        for _, enemy in ipairs(enemyFolder:GetChildren()) do
+                            if enemy:IsA("Part") then
+                                local distance = (unit.Position - enemy.Position).Magnitude
+                                if distance < shortestDistance then
+                                    shortestDistance = distance
+                                    closestEnemy = enemy
+                                end
+                            end
+                        end
+                        
+                        if closestEnemy then
+                            ultimateRemote:FireServer(unitFolder[unit.Name])
+                        end
+                    end
+                end
+                task.wait(.5)
+                if not getgenv().AutoUlt then break end
+            end
+        end)
+    end,
+}, "AutoUltToggle")
+
+sections.MainSection3:Dropdown({
+    Name = "Select Action After: ",
+    Multi = false,
+    Required = true,
+    Options = {"Retry", "Next Stage", "Return To Lobby"},
+    Default = "None",
+    Callback = function(Value)
+        getgenv().Method = Value
+    end,
+}, "Method")
+
+sections.MainSection4:Header({ Name = "Player Info:" })
+
+do
+    local player = game.Players.LocalPlayer
+    local dataFolder = game:GetService("ReplicatedStorage").Player_Data[player.Name].Data
+    local labels = {"Gem", "Gold", "Exp", "CurseToken", "MaxCollection", "Title"}
+    local labelObjects = {}
+    local previousValues = {}
+
+    for _, valueName in ipairs(labels) do
+        local valueObj = dataFolder:FindFirstChild(valueName)
+        if valueObj and valueObj:IsA("ValueBase") then
+            previousValues[valueName] = valueObj.Value
+            
+            local label = sections.MainSection4:Label({
+                Text = valueName .. ": " .. tostring(valueObj.Value)
+            })
+            
+            labelObjects[valueName] = label
+            
+            valueObj:GetPropertyChangedSignal("Value"):Connect(function()
+                local newValue = valueObj.Value
+                local previous = previousValues[valueName]
                 
-                ["type"] = "CreateUnit"
-            }   
-        elseif method == "InvokeServer" and tostring(self) == "UnitPlacements" then
-            if args[1] == "Upgrade" then
-                towerRecord[#towerRecord + 1] = {
-                    ["time"] = tick() - startTime,
-                    ["upgradeprices"] = tostring(args[2].Stats.upgradeprice.Value),
-                    ["OldTime"] = tostring(workspace.Maingame.Time.Value),
-                    ["cframe"] = tostring(args[2].HumanoidRootPart.CFrame.Position),
-                    ["character"] = args[2].Name,
-                    ["type"] = "UpgradeUnit"
-                }
-            elseif args[1] == "Sell" then
-                towerRecord[#towerRecord + 1] = {
-                    ["time"] = tick() - startTime,
-                    ["character"] = args[2].Name,
-                    ["OldTime"] = tostring(workspace.Maingame.Time.Value),
-                    ["cframe"] = tostring(args[2].HumanoidRootPart.CFrame.Position),
-                    ["type"] = "SellUnit"
-                }
+                local newText = valueName .. ": " .. tostring(newValue)
+                
+                if typeof(newValue) == "number" and typeof(previous) == "number" then
+                    local difference = newValue - previous
+                    if difference ~= 0 then
+                        newText = newText .. " (+" .. tostring(difference) .. " last match)"
+                    end
+                elseif typeof(newValue) == "string" and newValue ~= previous then
+                    newText = newText .. " (changed from: " .. tostring(previous) .. ")"
+                end
+                
+                label:UpdateName(newText)
+                previousValues[valueName] = newValue
+            end)
+        end
+    end
+end
+
+sections.MainSection5:Header({ Name = "Player Inventory Info:" })
+
+do
+    local player = game.Players.LocalPlayer
+    local dataFolder = game:GetService("ReplicatedStorage").Player_Data[player.Name].Items
+    local labels = {}
+    local previousAmounts = {}
+
+    for _, valueObj in ipairs(dataFolder:GetChildren()) do
+        if valueObj:IsA("Folder") and valueObj:FindFirstChild("Amount") then
+            previousAmounts[valueObj.Name] = valueObj.Amount.Value
+            
+            local label = sections.MainSection5:Label({
+                Text = valueObj.Name .. ": " .. tostring(valueObj.Amount.Value)
+            })
+            
+            labels[valueObj.Name] = label
+            
+            valueObj.Amount:GetPropertyChangedSignal("Value"):Connect(function()
+                local newAmount = valueObj.Amount.Value
+                local difference = newAmount - previousAmounts[valueObj.Name]
+                
+                local newText = valueObj.Name .. ": " .. tostring(newAmount)
+                if difference ~= 0 then
+                    newText = newText .. " (+ " .. tostring(difference) .. " last match)"
+                end
+                
+                labels[valueObj.Name]:UpdateName(newText)
+                previousAmounts[valueObj.Name] = newAmount
+            end)
+        end
+    end
+end
+
+sections.MainSection6:Header({Name = "Player Stats Info:"})
+
+local player = game.Players.LocalPlayer
+local dataFolder = game:GetService("ReplicatedStorage").Player_Data[player.Name].Stats
+local labels, previousAmounts = {}, {}
+
+for _, valueObj in pairs(dataFolder:GetChildren()) do
+    if valueObj:IsA("NumberValue") then
+        previousAmounts[valueObj.Name] = valueObj.Value
+        labels[valueObj.Name] = sections.MainSection6:Label({
+            Text = valueObj.Name .. ": " .. tostring(valueObj.Value)
+        })
+        
+        valueObj:GetPropertyChangedSignal("Value"):Connect(function()
+            local newAmount = valueObj.Value
+            local difference = newAmount - previousAmounts[valueObj.Name]
+            local newText = valueObj.Name .. ": " .. tostring(newAmount)
+            
+            if difference ~= 0 then
+                newText = newText .. " (+ " .. tostring(difference) .. " last match)"
+            end
+            
+            labels[valueObj.Name]:UpdateName(newText)
+            previousAmounts[valueObj.Name] = newAmount
+        end)
+    end
+end
+
+sections.MainSection15:Header({Name = "Units Dropped In Match:"})
+
+sections.MainSection15:Toggle({
+    Name = "Update If Dropped Units",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoUpdateUnitDrop = value 
+        
+        while task.wait(.5) do 
+            if not getgenv().AutoUpdateUnitDrop then break end
+            
+            if game:GetService("Players").LocalPlayer:FindFirstChild("RewardsShow") then
+                local labels = {}
+                local unitsinfo = game:GetService("Players").LocalPlayer.RewardsShow
+                
+                unitsinfo.ChildAdded:Connect(function(valueObj)
+                    if valueObj:IsA("Folder") and (valueObj.Name == "Yuta" or valueObj.Name == "Ace" or 
+                       valueObj.Name == "Gogeta" or valueObj.Name == "Madara") then
+                        sections.MainSection15:Label({Text = valueObj.Name})
+                    end
+                end)
+                break
             end
         end
-        return oldNamecall(self, ...)
-    end)
-    setreadonly(mt, true)
-        while task.wait() do 
-            writefile("c.txt", httpService:JSONEncode(towerRecord))
+    end,
+}, "AutoUpdateUnitsToggle")
+
+sections.MainSection15:Label({Text = "Unit dropped will update under here after u toggled."})
+
+sections.MainSection17:Divider()
+sections.MainSection17:Header({Name = "Current Challenge Info:"})
+
+local challengeData = game:GetService("ReplicatedStorage").Gameplay.Game.Challenge:GetChildren()
+local labels, previousAmounts = {}, {}
+
+for _, valueObj in pairs(challengeData) do
+    if valueObj:IsA("ValueBase") then 
+        previousAmounts[valueObj.Name] = valueObj.Value
+        
+        labels[valueObj.Name] = sections.MainSection17:Label({
+            Text = valueObj.Name .. ": " .. tostring(valueObj.Value)
+        })
+        
+        valueObj:GetPropertyChangedSignal("Value"):Connect(function()
+            local newAmount = valueObj.Value
+            local previous = previousAmounts[valueObj.Name]
+            
+            local newText = valueObj.Name .. ": " .. tostring(newAmount)
+            if newAmount ~= previous then
+                newText = newText .. " (changed from: " .. tostring(previous) .. ")"
+            end
+            
+            labels[valueObj.Name]:UpdateName(newText)
+            previousAmounts[valueObj.Name] = newAmount
+        end)
+    end
+end
+
+sections.MainSection7:Divider()
+sections.MainSection7:Header({Name = "Current Items Drop:"})
+
+local itemsFolder = game:GetService("ReplicatedStorage").Gameplay.Game.Challenge:FindFirstChild("Items")
+local labels, previousNames = {}, {}
+
+if itemsFolder then
+    for _, valueObj in pairs(itemsFolder:GetChildren()) do
+        if valueObj:IsA("ValueBase") then 
+            previousNames[valueObj] = valueObj.Name
+            
+            labels[valueObj] = sections.MainSection7:Label({
+                Text = valueObj.Name
+            })
+            
+            valueObj:GetPropertyChangedSignal("Value"):Connect(function()
+                labels[valueObj]:UpdateName(valueObj.Name)
+            end)
+            
+            valueObj:GetPropertyChangedSignal("Name"):Connect(function()
+                local newName = valueObj.Name
+                local oldName = previousNames[valueObj]
+                
+                labels[valueObj]:UpdateName(newName .. " (changed from: " .. oldName .. ")")
+                previousNames[valueObj] = newName
+            end)
         end
+    end
+end
+
+local items = {}
+for _, v in pairs(game:GetService("ReplicatedStorage").Assets.ItemModels.Models:GetDescendants()) do
+    if v:IsA("Folder") and v.Name ~= "Gears" and v.Name ~= "[for-showing]" then
+        for _, model in pairs(v:GetChildren()) do
+            if model:IsA("Model") then
+                table.insert(items, model.Name)
+            end
+        end
+    end
+end
+
+sections.MainSection18:Header({Name = "Auto-Join Specific Rewards Challenges:"})
+
+local AutoCompleteForChooseRewards = sections.MainSection18:Dropdown({
+    Name = "Auto Join X If No Rewards:",
+    Multi = false,
+    Required = true,
+    Options = {"Story","Boss-Event","Easter-Event","AFK Chamber"},
+    Default = "",
+    Callback = function(Value)
+        getgenv().WaitChallenge = Value 
+    end,
+}, "AutoCompleteForChooseRewardsSelect")
+
+local multiitemchallenge = sections.MainSection18:Dropdown({
+    Name = "Select Multi Rewards:",
+    Search = true,
+    Multi = true,
+    Required = false,
+    Options = items,
+    Default = {"None"},
+    Callback = function(Value)
+        getgenv().WantedItemsForChallenge = {}
+        for i, v in pairs(Value) do
+            table.insert(getgenv().WantedItemsForChallenge, i)
+        end
+    end,
+}, "multiitemchallengeDP")
+
+local ActionSpecificDPChallenge = sections.MainSection18:Dropdown({
+    Name = "Select Action After: ",
+    Multi = false,
+    Required = true,
+    Options = {"Retry","Next Stage","Return To Lobby"},
+    Default = "None",
+    Callback = function(Value)
+        getgenv().ActionSpecificChallenge = Value 
+    end,
+}, "ActionSpecificChallenge")
+
+sections.MainSection18:Toggle({
+    Name = "TP Lobby If Specific Rewards",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoLobbySpecificRewards = value  
+        
+        while task.wait(.5) do 
+            if not getgenv().AutoLobbySpecificRewards then break end
+            
+            local Players = game:GetService("Players")
+            local ReplicatedStorage = game:GetService("ReplicatedStorage")
+            local TeleportService = game:GetService("TeleportService")
+            local LocalPlayer = Players.LocalPlayer
+            
+            local mode = LocalPlayer.PlayerGui.HUD.InGame.Main.GameInfo.Gamemode.Label.Text
+            
+            local itemsFolder = ReplicatedStorage:FindFirstChild("Gameplay") and 
+                              ReplicatedStorage.Gameplay:FindFirstChild("Game") and 
+                              ReplicatedStorage.Gameplay.Game:FindFirstChild("Challenge") and 
+                              ReplicatedStorage.Gameplay.Game.Challenge:FindFirstChild("Items")
+            
+            if not itemsFolder then return end
+            
+            local found = {}
+            for _, item in pairs(itemsFolder:GetChildren()) do
+                found[item.Name] = true
+            end
+            
+            local hasDesiredItem = false
+            for _, wantedName in pairs(getgenv().WantedItemsForChallenge or {}) do
+                if found[wantedName] then
+                    hasDesiredItem = true
+                    break
+                end
+            end
+            
+            local shouldTeleport = false
+            
+            if LocalPlayer:FindFirstChild("UnitsFolder") then
+                local isAFK = LocalPlayer.PlayerGui:FindFirstChild("AFKChamber") and LocalPlayer.PlayerGui.AFKChamber.Enabled
+                
+                if mode ~= "Challenge" and hasDesiredItem and not isAFK then
+                    shouldTeleport = true
+                elseif mode == "Challenge" and not hasDesiredItem then
+                    shouldTeleport = true
+                end
+            end
+            
+            if mode == "" and not hasDesiredItem then
+                WorldSelectForAutoComplete:UpdateSelection(WaitChallenge)
+                join:UpdateState(true)
+            end 
+            
+            if shouldTeleport then
+                local gameId = "72829404259339"
+                TeleportService:Teleport(tonumber(gameId), LocalPlayer)
+            end
+        end 
+    end,
+}, "AutoLobbySpecificRewardsToggle")
+
+local specificchallenge = sections.MainSection18:Toggle({
+    Name = "Auto Join Selected Rewards",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoJoinChallengeSelected = value
+        
+        if game:GetService("Players").LocalPlayer:FindFirstChild("UnitsFolder") then return end
+        
+        while task.wait(0.5) do
+            if not getgenv().AutoJoinChallengeSelected then break end
+            
+            local itemsFolders = game:GetService("ReplicatedStorage").Gameplay.Game.Challenge.Items
+            local found = {}
+            for _, items in pairs(itemsFolders:GetChildren()) do
+                found[items.Name] = true
+            end
+            
+            local foundItem = false
+            
+            for _, wantedName in pairs(getgenv().WantedItemsForChallenge) do
+                if found[wantedName] then
+                    foundItem = true
+                    
+                    local mode = game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.Main.GameInfo.Gamemode.Label.Text
+                    local playRoomEvent = game:GetService("ReplicatedStorage").Remote.Server.PlayRoom.Event
+                    
+                    if mode ~= "Challenge" then
+                        playRoomEvent:FireServer("Create")
+                        task.wait(0.5)
+                        
+                        playRoomEvent:FireServer("Create", {["CreateChallengeRoom"] = true})
+                        task.wait(0.5)
+                        playRoomEvent:FireServer("Start")
+                    end
+                    break
+                end
+            end
+            
+            if not foundItem then
+                task.wait(1)
+                WorldSelectForAutoComplete:UpdateSelection(WaitChallenge)
+                join:UpdateState(true)
+            end
+        end
+        
+        if game:GetService("Players").LocalPlayer:FindFirstChild("UnitsFolder") then return end
+        
+        while task.wait(0.5) do
+            if not getgenv().AutoJoinChallengeSelected then break end
+            
+            local itemsFolders = game:GetService("ReplicatedStorage").Gameplay.Game.Challenge.Items
+            local found = {}
+            for _, items in pairs(itemsFolders:GetChildren()) do
+                found[items.Name] = true
+            end
+            
+            local foundItem = false
+            
+            for _, wantedName in pairs(getgenv().WantedItemsForChallenge) do
+                if found[wantedName] then
+                    foundItem = true
+                    
+                    local mode = game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.Main.GameInfo.Gamemode.Label.Text
+                    local playRoomEvent = game:GetService("ReplicatedStorage").Remote.Server.PlayRoom.Event
+                    
+                    if mode ~= "Challenge" then
+                        playRoomEvent:FireServer("Create")
+                        task.wait(0.5)
+                        
+                        playRoomEvent:FireServer("Create", {["CreateChallengeRoom"] = true})
+                        task.wait(0.5)
+                        playRoomEvent:FireServer("Start")
+                    end
+                    break
+                end
+            end
+            
+            if not foundItem then
+                task.wait(1)
+                ActionWinLose:SetValue(WaitChallenge)
+                Options.AutoJoinType:SetValue(true) 
+                Options.AutoAction:SetValue(true)
+                
+                WorldSelectForAutoComplete:UpdateSelection(WaitChallenge)
+                join:UpdateState(true)
+            end
+        end
+    end,
+}, "AutoJoinChallengeSelectedToggle")
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local units = {"None"}
+
+local unitsFolder = player:FindFirstChild("UnitsFolder")
+
+if unitsFolder then
+    for _, v in ipairs(unitsFolder:GetChildren()) do
+        if v:IsA("Folder") then
+            table.insert(units, v.Name)
+        end
+    end
+else
+    local guiUnits = player:FindFirstChild("PlayerGui")
+        :FindFirstChild("Profile")
+        :FindFirstChild("Container")
+        :FindFirstChild("Units")
+        :FindFirstChild("Frame")
+    
+    if guiUnits then
+        for _, v in ipairs(guiUnits:GetChildren()) do
+            if v:IsA("TextButton") and v.Name ~= "None" then
+                table.insert(units, v.Name)
+            end
+        end
+    end
+end
+
+getgenv().Unit1ForPlace = "None"
+getgenv().Unit2ForPlace = "None"
+getgenv().Unit3ForPlace = "None"
+getgenv().Unit4ForPlace = "None"
+getgenv().Unit5ForPlace = "None"
+getgenv().Unit6ForPlace = "None"
+
+sections.MainSection14:Header({Name = "Specific Place:"})
+
+local Place1 = sections.MainSection14:Dropdown({
+    Name = "Select Unit [1st]:",
+    Multi = false,
+    Required = false,
+    Options = units,
+    Default = "None",
+    Callback = function(Value)
+        getgenv().Unit1ForPlace = Value
+    end,
+}, "UpgradeSmartUnit1ForPlace")
+
+local Place2 = sections.MainSection14:Dropdown({
+    Name = "Select Unit [2nd]:",
+    Multi = false,
+    Required = false,
+    Options = units,
+    Default = "None",
+    Callback = function(Value)
+        getgenv().Unit2ForPlace = Value
+    end,
+}, "UpgradeSmartUnit2ForPlace")
+
+local Place3 = sections.MainSection14:Dropdown({
+    Name = "Select Unit [3rd]:",
+    Multi = false,
+    Required = false,
+    Options = units,
+    Default = "None",
+    Callback = function(Value)
+        getgenv().Unit3ForPlace = Value
+    end,
+}, "UpgradeSmartUnit3ForPlace")
+
+local Place4 = sections.MainSection14:Dropdown({
+    Name = "Select Unit [4th]:",
+    Multi = false,
+    Required = false,
+    Options = units,
+    Default = "None",
+    Callback = function(Value)
+        getgenv().Unit4ForPlace = Value
+    end,
+}, "UpgradeSmartUnit4ForPlace")
+
+local Place5 = sections.MainSection14:Dropdown({
+    Name = "Select Unit [5th]:",
+    Multi = false,
+    Required = false,
+    Options = units,
+    Default = "None",
+    Callback = function(Value)
+        getgenv().Unit5ForPlace = Value
+    end,
+}, "UpgradeSmartUnit5ForPlace")
+
+local Place6 = sections.MainSection14:Dropdown({
+    Name = "Select Unit [6th]:",
+    Multi = false,
+    Required = false,
+    Options = units,
+    Default = "None",
+    Callback = function(Value)
+        getgenv().Unit6ForPlace = Value
+    end,
+}, "UpgradeSmartUnit6ForPlace")
 
 
---loadstring(game:HttpGet("https://raw.githubusercontent.com/YOies/da/main/daa"))()
---game:GetService("ReplicatedStorage").Teleport:InvokeServer("Retry")
+sections.MainSection14:Input({
+    Name = "Delay To Place(s):",
+    Placeholder = "seconds",
+    AcceptedCharacters = "All",
+    Callback = function(input)
+        Window:Notify({
+            Title = Window.Settings.Title,
+            Description = "Successfully set delay to " .. input
+        })
+    end,
+    onChanged = function(input)
+        getgenv().TimeDelayPlace = input
+    end
+}, "TimeDelayInputPlace")
 
+sections.MainSection14:Toggle({
+    Name = "Auto Place Every X (s)",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoPlaceSpecific = value
+        
+        while true do
+            if not getgenv().AutoPlaceSpecific then break end
+            
+            task.wait(getgenv().TimeDelayPlace)
+            
+            local units = {
+                getgenv().Unit1ForPlace,
+                getgenv().Unit2ForPlace,
+                getgenv().Unit3ForPlace,
+                getgenv().Unit4ForPlace,
+                getgenv().Unit5ForPlace,
+                getgenv().Unit6ForPlace
+            }
+            
+            for _, v in ipairs(units) do
+                if v ~= "None" then
+                    local args = {
+                        [1] = game:GetService("Players").LocalPlayer.UnitsFolder:WaitForChild(v)
+                    }
+                    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("Units"):WaitForChild("Deployment"):FireServer(unpack(args))
+                end
+            end
+        end
+    end,
+}, "AutoPlaceSpecificToggle")
+
+sections.MainSection14:Toggle({
+    Name = "Auto Upgrade-Based Unit Placement",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoSmartPlace = value
+        local runningUpgrade = false
+        
+        if runningUpgrade then return end
+        runningUpgrade = true
+        
+        task.spawn(function()
+            while getgenv().AutoSmartPlace do
+                local units = {
+                    getgenv().Unit1 or "None",
+                    getgenv().Unit2 or "None",
+                    getgenv().Unit3 or "None",
+                    getgenv().Unit4 or "None",
+                    getgenv().Unit5 or "None",
+                    getgenv().Unit6 or "None"
+                }
+                
+                local smartUpgrades = {
+                    tonumber(getgenv().SmartUpgrade1),
+                    tonumber(getgenv().SmartUpgrade2),
+                    tonumber(getgenv().SmartUpgrade3),
+                    tonumber(getgenv().SmartUpgrade4),
+                    tonumber(getgenv().SmartUpgrade5),
+                    tonumber(getgenv().SmartUpgrade6)
+                }
+                
+                local player = game:GetService("Players").LocalPlayer
+                local unitFrame = player.PlayerGui.HUD.InGame.UnitsManager.Main.Main.ScrollingFrame
+                local deployRemote = game:GetService("ReplicatedStorage").Remote.Server.Units.Deployment
+                
+                for i = 1, #units do
+                    if not getgenv().AutoSmartPlace then break end
+                    
+                    local unitName = units[i]
+                    local targetUpgrade = smartUpgrades[i]
+                    
+                    if unitName ~= "None" and targetUpgrade then
+                        local unitGui = unitFrame:FindFirstChild(unitName)
+                        local upgradeTextObj = unitGui and unitGui:FindFirstChild("UpgradeText")
+                        
+                        if unitGui and upgradeTextObj then
+                            local currentUpgrade = 0
+                            for number in upgradeTextObj.Text:gmatch("%d+") do
+                                currentUpgrade = tonumber(number)
+                            end
+                            
+                            if currentUpgrade >= targetUpgrade then
+                                local unitInstance = player:WaitForChild("UnitsFolder"):FindFirstChild(unitName)
+                                if unitInstance then
+                                    deployRemote:FireServer(unitInstance)
+                                end
+                            end
+                        end
+                    end
+                end
+                
+                task.wait(.7)
+            end
+            
+            runningUpgrade = false
+        end)
+    end,
+}, "AutoPUpgradeBasedToggle")
+
+sections.MainSection8:Header({Name = "Specific Upgrades:"})
+
+local function createUnitDropdowns()
+    local unitOptions = {
+        [1] = { name = "Select Unit [1st]:", key = "Unit1" },
+        [2] = { name = "Select Unit [2nd]:", key = "Unit2" },
+        [3] = { name = "Select Unit [3rd]:", key = "Unit3" },
+        [4] = { name = "Select Unit [4th]:", key = "Unit4" },
+        [5] = { name = "Select Unit [5th]:", key = "Unit5" },
+        [6] = { name = "Select Unit [6th]:", key = "Unit6" }
+    }
+
+    for i, info in ipairs(unitOptions) do
+        sections.MainSection8:Dropdown({
+            Name = info.name,
+            Multi = false,
+            Required = false,
+            Options = units,
+            Default = "None",
+            Callback = function(Value)
+                getgenv()[info.key] = Value
+            end
+        }, "UpgradeSmartUnit" .. i)
+        
+        sections.MainSection8:Input({
+            Name = "Number To Upgrade [" .. i .. (i == 1 and "st]:" or i == 2 and "nd]:" or i == 3 and "rd]:" or "th]:"),
+            Placeholder = "",
+            AcceptedCharacters = "All",
+            Callback = function(input)
+                Window:Notify({
+                    Title = Window.Settings.Title,
+                    Description = "Successfully set input to " .. input
+                })
+            end,
+            onChanged = function(input)
+                getgenv()["SmartUpgrade" .. i] = input
+            end
+        }, "MaxUpgrade" .. i)
+    end
+end
+
+createUnitDropdowns()
+
+sections.MainSection10:Input({
+    Name = "Delay To Upgrade(s):",
+    Placeholder = "seconds",
+    AcceptedCharacters = "All",
+    Callback = function(input)
+        Window:Notify({
+            Title = Window.Settings.Title,
+            Description = "Successfully set delay to " .. input
+        })
+    end,
+    onChanged = function(input)
+        getgenv().TimeDelayUpgrade = input
+    end
+}, "TimeDelayInputUpgrade")
+
+sections.MainSection10:Toggle({
+    Name = "Auto Upgrade Selected Units",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoSmartUpgrade = value
+        local runningUpgrade = false
+
+        function StartSmartUpgrade()
+            if runningUpgrade then return end
+            runningUpgrade = true
+        
+            task.spawn(function()
+                while getgenv().AutoSmartUpgrade do
+                    local units = {}
+                    local smartUpgrades = {}
+                    
+                    for i = 1, 6 do
+                        units[i] = getgenv()["Unit" .. i] or "None"
+                        smartUpgrades[i] = tonumber(getgenv()["SmartUpgrade" .. i])
+                    end
+                    
+                    local player = game:GetService("Players").LocalPlayer
+                    local unitFrame = player.PlayerGui.HUD.InGame.UnitsManager.Main.Main.ScrollingFrame
+                    local upgradeRemote = game:GetService("ReplicatedStorage").Remote.Server.Units.Upgrade
+                    
+                    for i = 1, #units do
+                        if not getgenv().AutoSmartUpgrade then break end
+                        
+                        local unitName = units[i]
+                        local targetUpgrade = smartUpgrades[i]
+                        
+                        if unitName ~= "None" and targetUpgrade then
+                            local unitGui = unitFrame:FindFirstChild(unitName)
+                            local upgradeTextObj = unitGui and unitGui:FindFirstChild("UpgradeText")
+                            
+                            if unitGui and upgradeTextObj then
+                                local currentUpgrade = 0
+                                for number in upgradeTextObj.Text:gmatch("%d+") do
+                                    currentUpgrade = tonumber(number)
+                                end
+                                
+                                if currentUpgrade < targetUpgrade then
+                                    local unitInstance = player:WaitForChild("UnitsFolder"):FindFirstChild(unitName)
+                                    if unitInstance then
+										task.wait(getgenv().TimeDelayUpgrade or 1)
+                                        upgradeRemote:FireServer(unitInstance)
+                                        
+                                        for attempt = 1, 10 do
+                                            task.wait(0.2)
+                                            local updatedGui = unitFrame:FindFirstChild(unitName)
+                                            local updatedTextObj = updatedGui and updatedGui:FindFirstChild("UpgradeText")
+                                            
+                                            if updatedTextObj then
+                                                local updatedLevel = 0
+                                                for num in updatedTextObj.Text:gmatch("%d+") do
+                                                    updatedLevel = tonumber(num)
+                                                end
+                                                
+                                                if updatedLevel > currentUpgrade then break end
+                                            end
+                                        end
+                                        
+                                        break
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    
+                    task.wait(0.5)
+                end
+                
+                runningUpgrade = false
+            end)
+        end
+        StartSmartUpgrade()
+    end
+}, "AutoSmartUpgradeToggle")
+
+local randomupgrade = sections.MainSection10:Toggle({
+    Name = "Auto Random Upgrade",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoRandomUpgrade = value
+        task.spawn(function()
+            while true do
+                if not getgenv().AutoRandomUpgrade then break end
+                
+                for _, unit in pairs(game:GetService("Players").LocalPlayer.UnitsFolder:GetChildren()) do
+                    if not getgenv().AutoRandomUpgrade then break end
+                    game:GetService("ReplicatedStorage").Remote.Server.Units.Upgrade:FireServer(unit)
+                end
+                
+                task.wait(0.5)
+            end
+        end)
+    end
+}, "AutoRandomUpgradeToggle")
+
+sections.MainSection11:Header({
+    Text = "All Rangers Auto Join:"
+})
+
+local AutoCompleteForChoose = sections.MainSection11:Dropdown({
+    Name = "Auto Join X After Done All:",
+    Multi = false,
+    Required = true,
+    Options = {"Story", "Raid", "Challenge", "Infinity Castle", "Boss-Event", "Easter-Event", "AFK Chamber"},
+    Default = "",
+    Callback = function(Value)
+        getgenv().WaitRangers = Value
+    end
+}, "AutoCompleteForChooseSelect")
+
+local function click(part, offsetX, offsetY)
+    if not part or not part:IsA("GuiObject") then return end
+    local inset = game:GetService("GuiService"):GetGuiInset()
+    local topLeft = part.AbsolutePosition + inset
+    local center = topLeft + (part.AbsoluteSize / 2)
+    local X, Y = center.X + (offsetX or 0), center.Y + (offsetY or 0)
+    
+    local vim = game:GetService("VirtualInputManager")
+    vim:SendMouseButtonEvent(X, Y, 0, true, game, 0)
+    task.wait()
+    vim:SendMouseButtonEvent(X, Y, 0, false, game, 0)
+end
+
+local function firePlayRoomEvent(action, data)
+    pcall(function()
+        game:GetService("ReplicatedStorage")
+            :WaitForChild("Remote")
+            :WaitForChild("Server")
+            :WaitForChild("PlayRoom")
+            :WaitForChild("Event")
+            :FireServer(action, data)
+    end)
+    task.wait(0.5)
+end
+
+local completeall = sections.MainSection11:Toggle({
+    Name = "Auto Complete All Rangers Stage",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoCompleteRangersStage = value
+        
+        if game:GetService("Players").LocalPlayer:FindFirstChild("UnitsFolder") then return end
+        
+        if join and join.State == true then 
+            join:UpdateState(false) 
+        end
+        
+        task.spawn(function()
+            while task.wait(0.5) do
+                if not getgenv().AutoCompleteRangersStage then break end
+                
+                local player = game:GetService("Players").LocalPlayer
+                player.PlayerGui.PlayRoom.Enabled = true
+                task.wait(0.9)
+                
+                firePlayRoomEvent("Create")
+                firePlayRoomEvent("Change-Mode", { Mode = "Ranger Stage" })
+                
+                local worlds = { "OnePiece", "Namek", "DemonSlayer", "Naruto", "OPM" }
+                for _, world in ipairs(worlds) do
+                    firePlayRoomEvent("Change-World", { World = world })
+                end
+                
+                local allLocked = true
+                local chapterDescendants = player.PlayerGui.PlayRoom.Main.GameStage.Main.Base.Chapter:GetDescendants()
+                
+                for _, v in pairs(chapterDescendants) do
+                    if v:IsA("Frame") and v.Name == "RangerStageLock" and v.Visible == false then
+                        allLocked = false
+                        break
+                    end
+                end
+                
+                if allLocked then
+                    getgenv().AutoCompleteRangersStage = false
+                    task.wait(1)
+                    
+                    firePlayRoomEvent("Remove")
+                    click(player.PlayerGui.PlayRoom.Main.Button.Leave)
+                    task.wait(1)
+                    
+                    WorldSelectForAutoComplete:UpdateSelection(getgenv().WaitRangers)
+                    join:UpdateState(true)
+                    break
+                end
+                
+                local stageFound = false
+                
+                for _, worldName in ipairs(worlds) do
+                    if stageFound then break end
+                    
+                    for _, stageName in ipairs({ "RangerStage1", "RangerStage2", "RangerStage3" }) do
+                        if stageFound then break end
+                        
+                        for _, v in pairs(chapterDescendants) do
+                            if v:IsA("Frame") and v.Name == "RangerStageLock" and v.Visible == false then
+                                local chapterFrame = v.Parent
+                                local worldFrame = chapterFrame.Parent
+                                
+                                local fullName = tostring(worldFrame.Name)
+                                local world, stage = string.match(fullName, "([^_]+)_([^_]+)")
+                                
+                                if world == worldName and stage == stageName then
+                                    firePlayRoomEvent("Change-World", { World = world })
+                                    firePlayRoomEvent("Change-Chapter", { Chapter = fullName })
+                                    firePlayRoomEvent("Submit")
+                                    firePlayRoomEvent("Start")
+                                    
+                                    stageFound = true
+                                    break
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    end
+}, "AutoCompleteAllRangersStage")
+
+sections.MainSection11:Toggle({
+    Name = "TP Lobby If Ranger Unlocked",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoLobby = value
+        task.spawn(function()
+            while true do
+                if not getgenv().AutoLobby then break end
+                
+                local folder = game:GetService("ReplicatedStorage").Player_Data[game.Players.LocalPlayer.Name].RangerStage
+                local mode = game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.Main.GameInfo.Gamemode.Label.Text
+                
+                if game:GetService("Players").LocalPlayer:FindFirstChild("UnitsFolder") and mode ~= "Ranger Stage" and #folder:GetChildren() == 0 then
+                    game:GetService("TeleportService"):Teleport(72829404259339, game.Players.LocalPlayer)
+                    break
+                end
+                
+                task.wait(0.5)
+            end
+        end)
+    end
+}, "AutoLobbyToggle")
+
+sections.MainSection11:Button({
+    Name = "Reset Selected",
+    Callback = function()
+        AutoCompleteForChoose:UpdateSelection("None")
+        Window:Notify({
+            Title = Window.Settings.Title,
+            Description = "Successfully Reset Selected!"
+        })
+    end
+})
+
+sections.MainSection16:Header({
+    Text = "Specific Multiple Rangers Auto Join:"
+})
+
+local AutoCompleteForChooseSpecfic = sections.MainSection16:Dropdown({
+    Name = "Auto Join X After Done All:",
+    Multi = false,
+    Required = true,
+    Options = {"Story", "Raid", "Challenge", "Infinity Castle", "Boss-Event", "Easter-Event", "AFK Chamber"},
+    Default = "",
+    Callback = function(Value)
+        getgenv().WaitRangersSpecific = Value
+    end
+}, "AutoCompleteForChooseSelectSpecific")
+
+local rangerStages = {}
+for _, world in ipairs({"OnePiece", "Namek", "DemonSlayer", "Naruto", "OPM"}) do
+    for i = 1, 3 do
+        table.insert(rangerStages, world .. "_RangerStage" .. i)
+    end
+end
+
+local multispecficDP = sections.MainSection16:Dropdown({
+    Name = "Select Multi Specific Rangers:",
+    Search = true,
+    Multi = true,
+    Required = false,
+    Options = rangerStages,
+    Default = {"None"},
+    Callback = function(Value)
+        getgenv().WantedRangers = {}
+        for i in pairs(Value) do
+            table.insert(getgenv().WantedRangers, i)
+        end
+    end
+}, "MultiSpecificRangerDP")
+
+local ActionSpecificDP = sections.MainSection16:Dropdown({
+    Name = "Select Action After: ",
+    Multi = false,
+    Required = true,
+    Options = {"Retry", "Next Stage", "Return To Lobby"},
+    Default = "None",
+    Callback = function(Value)
+        getgenv().ActionSpecific = Value
+    end
+}, "ActionSpecific")
+
+local playergui = game:GetService("Players").LocalPlayer.PlayerGui.PlayRoom.Main.GameStage.Main.Base.Chapter
+
+local completespecific = sections.MainSection16:Toggle({
+	Name = "Auto Complete Specific Rangers",
+	Default = false,
+	Callback = function(value)
+		getgenv().AutoSpecificRangers = value
+        
+        if game:GetService("Players").LocalPlayer:FindFirstChild("UnitsFolder") then return end
+        
+        if join and join.State then join:UpdateState(false) end
+        
+        local playRoomEvent = game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("PlayRoom"):WaitForChild("Event")
+        
+        local function firePlayRoomEvent(action, data)
+            pcall(function() playRoomEvent:FireServer(action, data) end)
+            task.wait(0.5)
+        end
+        
+        while getgenv().AutoSpecificRangers do
+            local player = game:GetService("Players").LocalPlayer
+            local playergui = player.PlayerGui.PlayRoom.Main.GameStage.Main.Base.Chapter
+            player.PlayerGui.PlayRoom.Enabled = true 
+            task.wait(0.6)
+            
+            firePlayRoomEvent("Create")
+            firePlayRoomEvent("Change-Mode", { Mode = "Ranger Stage" })
+            
+            for _, world in ipairs({"OnePiece", "Namek", "DemonSlayer", "Naruto", "OPM"}) do
+                firePlayRoomEvent("Change-World", { World = world })
+            end
+            
+            local allLocked = true
+            for _, v in pairs(WantedRangers) do
+                local world = string.match(v, "([^_]+)_")
+                if playergui[world][v].Inner:FindFirstChild("RangerStageLock") and 
+                   playergui[world][v].Inner.RangerStageLock.Visible == false then
+                    allLocked = false
+                    break
+                end
+            end
+            
+            if allLocked then
+                getgenv().AutoSpecificRangers = false
+                
+                firePlayRoomEvent("Remove")
+                click(player.PlayerGui.PlayRoom.Main.Button.Leave)
+                task.wait(1)
+                
+                WorldSelectForAutoComplete:UpdateSelection(WaitRangersSpecific)
+                join:UpdateState(true)
+                break
+            end
+            
+            for _, v in pairs(WantedRangers) do
+                local world = string.match(v, "([^_]+)_")
+                if playergui[world][v].Inner:FindFirstChild("RangerStageLock") and 
+                   playergui[world][v].Inner.RangerStageLock.Visible == false then
+                    
+                    firePlayRoomEvent("Change-World", { World = world })
+                    firePlayRoomEvent("Change-Chapter", { Chapter = v })
+                    firePlayRoomEvent("Submit")
+                    firePlayRoomEvent("Start")
+                    break
+                end
+            end
+            
+            task.wait(0.5)
+        end
+	end,
+}, "AutoSpecificRangersToggle")
+
+sections.MainSection16:Toggle({
+	Name = "TP Lobby If Specific Unlocked",
+	Default = false,
+	Callback = function(value)
+		getgenv().AutoLobbySpecific = value  
+		
+		while getgenv().AutoLobbySpecific do
+            local mode = game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.Main.GameInfo.Gamemode.Label.Text
+            
+            if game:GetService("Players").LocalPlayer:FindFirstChild("UnitsFolder") and mode ~= "Ranger Stage" then
+                local rangerFolder = game:GetService("ReplicatedStorage").Player_Data[game.Players.LocalPlayer.Name].RangerStage
+                local found = {}
+                
+                for _, ranger in pairs(rangerFolder:GetChildren()) do
+                    found[ranger.Name] = true
+                end
+                
+                for _, wantedName in pairs(getgenv().WantedRangers) do
+                    if not found[wantedName] then
+                        game:GetService("TeleportService"):Teleport(72829404259339, game.Players.LocalPlayer)
+                        break
+                    end
+                end
+            end
+            
+            task.wait(0.5)
+        end
+	end,
+}, "AutoLobbySpecificToggle")
+
+sections.MainSection16:Button({
+	Name = "Reset Selected",
+	Callback = function()
+		multispecficDP:UpdateSelection("None")
+		AutoCompleteForChooseSpecfic:UpdateSelection("None")
+        
+        Window:Notify({
+            Title = Window.Settings.Title,
+            Description = "Successfully Reset Selected!"
+        })
+	end,
+})
+
+sections.MainSection16:Paragraph({
+	Header = "Note:",
+	Body = "Select Action After For Specific Rangers is FOR RANGERS ONLY."
+})
+
+sections.MainSection11:Paragraph({
+	Header = "How to use Auto Complete:",
+	Body = "Auto-Complete auto set next stage, other modes auto set retry. \n\nIf you completed all Rangers, it's auto do the thing u selected while waiting rangers unlocked all. \n\n MAKE SURE TO SELECT CONFIG"
+})
+
+sections.MainSection12:Header({
+	Name = "Webhook:"
+})
+
+local MultiDropdown = sections.MainSection12:Dropdown({
+	Name = "Select Units/Items To Notify:",
+	Search = true,
+	Multi = true,
+	Required = false,
+	Options = {"Everything","Onigiri","Sunrise Earrings","Blood Ember","Cursed Core","Dark Essence","Demon Fang Shard",
+               "Moonroot Herb","Flame Seal Tag","Mirror Lens","Soul Core","Slayer Stone Fragment","Stats Key",
+               "Perfect Stats Key","Cursed Finger","Dr. Megga Punk","Trait Reroll","Ranger Crystal","Luck Potion",
+               "Green Bean","Narmekian Ore","Power Core","Dracoscale Shard","Arcane Dust","Narmekian Crystal",
+               "Nano Fiber Wire","Micro Circuit Board","Phantom Alloy","Enhanced Optical Lens","Energy Vial","Ramen",
+               "Storm Flake Crystal","Shadow Fiber","Seal of Gale","Chakra Shard","Ancient Talisman","Smoke Orb",
+               "Scroll of Focus","Kunai Shards","Core of Silence","French Fries","Alpha Dust","Blast Cell",
+               "Chaos Bone Shard","Surge Nucleus","Mutant Core Fragment","Genesis Matrix","Neurochip Beta",
+               "Tactical Frame","SYN-Core","Rubber Fruit","Sea Gem Fragment","Soul Shard","Mystic Kelp","Will Core",
+               "Void Pearl","Obsidian Plate","Marine Tech Chip","Combat Fluid","Ghost Lens","Ancient Power Core",
+               "Bunny Bounce Boots","Carrot Cutter","Fluffy Focus","Furrocious Fluff"},
+	Default = {'None'},
+	Callback = function(Value)
+		getgenv().WantedNotify = {}
+		for i in pairs(Value) do
+			table.insert(getgenv().WantedNotify, i)
+		end
+	end,
+}, "UnitorItemsDP")
+
+sections.MainSection12:Input({
+	Name = "Enter Url:",
+	Placeholder = "",
+	AcceptedCharacters = "All",
+	Callback = function(input)
+		Window:Notify({
+			Title = Window.Settings.Title,
+			Description = "Successfully set url to " .. input
+		})
+	end,
+	onChanged = function(input)
+	   getgenv().Url = tostring(input)
+	end,
+}, "WebhookURL")
+
+local autosend = sections.MainSection12:Toggle({
+	Name = "Auto Send After Win/Lose",
+	Default = false,
+	Callback = function(value)
+		getgenv().AutoSendWebhook = value
+		
+		local hasrun = false
+		local player = game.Players.LocalPlayer
+		local http = game:GetService("HttpService")
+		
+		function SendMessageEMBED(url, embed, pingEveryone)
+			local data = {
+				["content"] = pingEveryone and "@everyone" or nil,
+				["embeds"] = {
+					{
+						["title"] = embed.title,
+						["description"] = embed.description,
+						["color"] = embed.color or 0xffffff,
+						["fields"] = embed.fields,
+						["footer"] = {
+							["text"] = embed.footer.text,
+							["icon_url"] = embed.footer.icon_url
+						},
+						["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
+					}
+				}
+			}
+			
+			(syn and syn.request or request)({
+				Url = url,
+				Method = "POST",
+				Headers = {["Content-Type"] = "application/json"},
+				Body = http:JSONEncode(data)
+			})
+		end
+		
+		player.PlayerGui.RewardsUI:GetPropertyChangedSignal("Enabled"):Connect(function()
+			if not player.PlayerGui.RewardsUI.Enabled then
+				hasrun = false
+			end
+		end)
+		
+		while getgenv().AutoSendWebhook do
+			local gui = player.PlayerGui.RewardsUI
+			if gui.Enabled and not hasrun then
+				hasrun = true
+				
+				local playerName = "[" .. game:GetService("ReplicatedStorage").Player_Data[player.Name].Data.Level.Value .. "] ||" .. player.Name .. "||"
+				local winorlose = gui.Main.LeftSide.GameStatus.Text
+				local world = gui.Main.LeftSide.World.Text
+				local mode = gui.Main.LeftSide.Mode.Text
+				local chap = gui.Main.LeftSide.Chapter.Text
+				local diff = gui.Main.LeftSide.Difficulty.Text
+				local time = gui.Main.LeftSide.TotalTime.Text
+				
+				local rewards = {}
+				for _, v in pairs(player.RewardsShow:GetChildren()) do
+					if v:IsA('Folder') and (v.Name ~= "Exp" and v.Name ~= "Gold" and v.Name ~= "Gem" and v.Name ~= "Egg") and v:FindFirstChild("Amount") then
+						table.insert(rewards, "\n" .. v.Name .. "(+" .. v.Amount.Value .. ")" .. " | Total: " .. game:GetService("ReplicatedStorage").Player_Data[player.Name].Items[v.Name].Amount.Value)
+					end
+				end
+				
+				if #rewards == 0 then
+					local currentTime = os.date("*t")
+					local timeStr = string.format("Hours: %02d | Minutes: %02d | Seconds: %02d", 
+					                              currentTime.hour, currentTime.min, currentTime.sec)
+					
+					Window:Notify({
+						Title = "Webhook Notify",
+						Description = "No rewards so not send webhook! \nTime Finished: " .. timeStr,
+						Lifetime = 50
+					})
+					continue
+				end
+				
+				getgenv().Number = (winorlose == "~ WON" and 65280 or 16711680)
+				
+				for _, wantedItem in pairs(getgenv().WantedNotify) do
+					local matched = false
+					for _, rewardItem in pairs(player.RewardsShow:GetChildren()) do
+						if wantedItem == tostring(rewardItem) then
+							matched = true
+						end
+					end
+					
+					if matched or wantedItem == "Everything" then
+						local embed = {
+							title = "Anime Rangers X",
+							color = tonumber(getgenv().Number),
+							fields = {
+								{ name = "- Name", value = playerName, inline = false },
+								{ name = "- Result", value = world .. winorlose .. "\n" .. chap .. " - ( " .. diff .. " )\n" .. time .. "\n - Rewards:" .. table.concat(rewards, ""), inline = false }
+							},
+							footer = {
+								text = "L-Hub",
+								icon_url = ""
+							}
+						}
+						
+						local shouldPing = (matched and wantedItem ~= "Everything")
+						SendMessageEMBED(getgenv().Url, embed, shouldPing)
+					end
+				end
+			end
+			task.wait(0.5)
+		end
+	end,
+}, "AutoSendWebhook")
+
+sections.MainSection12:Paragraph({
+	Header = "About Rewards:",
+	Body = "Webhook will ignore Gems, EXP, Gold, Egg — All other rewards will be notified. \n\n Webhook auto ping @everyone if you select specific units/items \n\n You can select multiples specific items/units. \n\n If there are no rewards, webhook will send notify in ur game instead of discord."
+})
+
+sections.MainSection3:Toggle({
+	Name = "Auto Do Selected Action",
+	Default = false,
+	Callback = function(value)
+		getgenv().AutoAfterWinLose = value
+		
+		while getgenv().AutoAfterWinLose do
+			local mode = game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.Main.GameInfo.Gamemode.Label.Text
+			
+			if completeall and completeall.State then
+				if mode == "Ranger Stage" then
+					methodaction:UpdateSelection("Next Stage")
+				elseif mode == "Challenge" or mode == "Story" or mode == "Boss-Event" or mode == "Event" then
+					methodaction:UpdateSelection("Retry")
+				end
+			elseif completespecific and completespecific.State then
+				if mode == "Ranger Stage" then
+					methodaction:UpdateSelection(ActionSpecific)
+				elseif mode == "Challenge" or mode == "Story" or mode == "Boss-Event" or mode == "Event" then
+					methodaction:UpdateSelection("Retry")
+				end
+			elseif specificchallenge and specificchallenge.State then
+				if mode == "Challenge" or mode == "Story" or mode == "Boss-Event" or mode == "Event" then
+					methodaction:UpdateSelection(ActionSpecificChallenge)
+				end
+			end
+			
+			local playerGui = game:GetService("Players").LocalPlayer.PlayerGui
+			local rewardsUI = playerGui.RewardsUI
+			local showUnits = playerGui.Visual:FindFirstChild("Showcase_Units")
+			
+			if getgenv().Method == "Retry" then
+				if showUnits and not rewardsUI.Enabled then
+					game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, true, game, 1)
+					game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, false, game, 1)
+				elseif rewardsUI.Enabled then
+					local voteRemote = game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("OnGame"):WaitForChild("Voting"):WaitForChild("VoteRetry")
+					
+					if autosend and autosend.State then
+						task.wait(1.2)
+						voteRemote:FireServer()
+					else
+						voteRemote:FireServer()
+					end
+				end
+			elseif getgenv().Method == "Next Stage" then
+				if showUnits and not rewardsUI.Enabled then
+					game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, true, game, 1)
+					game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, false, game, 1)
+				elseif rewardsUI.Enabled then
+					local voteRemote = game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("OnGame"):WaitForChild("Voting"):WaitForChild("VoteNext")
+					
+					if autosend and autosend.State then
+						task.wait(1.2)
+						voteRemote:FireServer()
+					else
+						voteRemote:FireServer()
+					end
+				end
+			elseif getgenv().Method == "Return To Lobby" then
+				if showUnits and not rewardsUI.Enabled then
+					game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, true, game, 1)
+					game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, false, game, 1)
+				elseif rewardsUI.Enabled then
+					if autosend and autosend.State then
+						task.wait(1.2)
+					end
+					
+					game:GetService("TeleportService"):Teleport(72829404259339, game.Players.LocalPlayer)
+					break
+				end
+			end
+			
+			task.wait(0.2)
+		end
+	end,
+}, "AutoAfterWinLoseToggle")
+
+sections.MainSection19:Header({
+	Name = "Auto-Craft:"
+})
+
+getgenv().WantedEvoItems = {}
+local multiitemevo = sections.MainSection19:Dropdown({
+	Name = "Select To Craft [Multi]:",
+	Search = true,
+	Multi = true,
+	Required = false,
+	Options = items,
+	Default = {"None"},
+	Callback = function(Value)
+		getgenv().WantedEvoItems = {}
+		for i in pairs(Value) do
+			table.insert(getgenv().WantedEvoItems, i)
+		end
+	end,
+}, "multiitemevoDP")
+
+sections.MainSection19:Toggle({
+	Name = "Auto Craft Selected Items",
+	Default = false,
+	Callback = function(value)
+		getgenv().AutoCraft = value
+		getgenv().DestroySystemMsg = value
+		
+		local player = game:GetService("Players").LocalPlayer
+		local playerGui = player:WaitForChild("PlayerGui")
+		local destroyMsgConnection
+		
+		local function UpdateDestroyListener()
+			if getgenv().DestroySystemMsg then
+				if not destroyMsgConnection or not destroyMsgConnection.Connected then
+					destroyMsgConnection = playerGui.ChildAdded:Connect(function(child)
+						if child.Name == "SystemMessage" then
+							child:Destroy()
+						end
+					end)
+				end
+			elseif destroyMsgConnection then
+				destroyMsgConnection:Disconnect()
+				destroyMsgConnection = nil
+			end
+		end
+		
+		task.spawn(function()
+			while true do
+				UpdateDestroyListener()
+				task.wait(0.5)
+			end
+		end)
+		
+		while getgenv().AutoCraft do
+			for _, itemName in pairs(getgenv().WantedEvoItems) do
+				game:GetService("ReplicatedStorage"):WaitForChild("Remote")
+					:WaitForChild("Server")
+					:WaitForChild("Crafting")
+					:WaitForChild("Event")
+					:FireServer(itemName, "1", "1")
+				
+				task.wait(0.5)
+				
+				local systemMsg = playerGui:FindFirstChild("SystemMessage")
+				if systemMsg and getgenv().DestroySystemMsg then
+					systemMsg:Destroy()
+				end
+			end
+			
+			task.wait(0.5)
+		end
+	end,
+}, "AutoCraftToggle")
+
+sections.MainSection19:Label({
+	Text = "You can auto craft in match!"
+})
+
+sections.MainSection22:Header({
+	Name = "Enable/Disable UI [In-Match]:"
+})
+
+local Dropdown = sections.MainSection22:Dropdown({
+	Name = "Select UI",
+	Multi = false,
+	Required = false,
+	Options = {"Crafting","EvolveTier","FeedEXP","Items","LimitBreaks","Merchant","ShinyNormalize","StatsPotential","Traits","UnitsEvolve","UnitsGacha","ApplyCurse","EasterEggEvent"},
+	Default = 1,
+	Callback = function(Value)
+		getgenv().UI = Value 
+	end,
+}, "UIDP")
+
+sections.MainSection22:Toggle({
+	Name = "Enable/Disable Selected UI",
+	Default = false,
+	Callback = function(value)
+		game:GetService("Players").LocalPlayer.PlayerGui[getgenv().UI].Enabled = value 
+	end,
+}, "EnableUI")
+
+sections.MainSection20:Header({
+	Name = "Auto Buy Items [Merchant]:"
+})
+
+local multiunitevo = sections.MainSection20:Dropdown({
+	Name = "Select Multi Items:",
+	Search = true,
+	Multi = true,
+	Required = false,
+	Options = {"Onigiri","Sunrise Earrings","Blood Ember","Cursed Core","Dark Essence","Demon Fang Shard","Moonroot Herb",
+              "Flame Seal Tag","Mirror Lens","Soul Core","Slayer Stone Fragment","Stats Key","Perfect Stats Key","Cursed Finger",
+              "Dr. Megga Punk","Trait Reroll","Ranger Crystal","Luck Potion","Green Bean","Narmekian Ore","Power Core",
+              "Dracoscale Shard","Arcane Dust","Narmekian Crystal","Nano Fiber Wire","Micro Circuit Board","Phantom Alloy",
+              "Enhanced Optical Lens","Energy Vial","Ramen","Storm Flake Crystal","Shadow Fiber","Seal of Gale","Chakra Shard",
+              "Ancient Talisman","Smoke Orb","Scroll of Focus","Kunai Shards","Core of Silence","French Fries","Alpha Dust",
+              "Blast Cell","Chaos Bone Shard","Surge Nucleus","Mutant Core Fragment","Genesis Matrix","Neurochip Beta",
+              "Tactical Frame","SYN-Core","Rubber Fruit","Sea Gem Fragment","Soul Shard","Mystic Kelp","Will Core","Void Pearl",
+              "Obsidian Plate","Marine Tech Chip","Combat Fluid","Ghost Lens","Ancient Power Core"},
+	Default = {"None"},
+	Callback = function(Value)
+		getgenv().WantedUnitForEvo = {}
+		for i in pairs(Value) do
+			table.insert(getgenv().WantedUnitForEvo, i)
+		end
+	end,
+}, "multiunitevoDP")
+
+sections.MainSection20:Toggle({
+	Name = "Auto Buy Selected Items",
+	Default = false,
+	Callback = function(value)
+		getgenv().AutoEvo = value
+        
+        local merchantEvent = game:GetService("ReplicatedStorage"):WaitForChild("Remote")
+            :WaitForChild("Server")
+            :WaitForChild("Gameplay")
+            :WaitForChild("Merchant")
+        
+        while getgenv().AutoEvo do
+            for _, itemName in pairs(WantedUnitForEvo) do
+                merchantEvent:FireServer(itemName, 1)
+            end
+            task.wait(0.5)
+        end
+	end,
+}, "AutoEvoToggle")
+
+sections.MainSection20:Label({
+	Text = "You can auto buy items in match!"
+})
+
+
+sections.MainSection24:Header({Name = "Auto-Buy Items Easter Event:"})
+
+local player = game.Players.LocalPlayer
+local dataFolder = game:GetService("ReplicatedStorage").Player_Data[player.Name].Data
+
+local eggValue = dataFolder:FindFirstChild("Egg")
+local eggPrevValue = eggValue and eggValue.Value
+
+local eggLabel
+if eggValue and eggValue:IsA("ValueBase") then
+    eggLabel = sections.MainSection24:Label({Text = "Egg: " .. tostring(eggPrevValue)})
+    
+    eggValue:GetPropertyChangedSignal("Value"):Connect(function()
+        local newValue = eggValue.Value
+        local newText = "Egg: " .. tostring(newValue)
+        
+        if typeof(newValue) == "number" and typeof(eggPrevValue) == "number" then
+            local difference = newValue - eggPrevValue
+            if difference ~= 0 then
+                newText = newText .. " (+" .. tostring(difference) .. " last match)"
+            end
+        elseif typeof(newValue) == "string" and newValue ~= eggPrevValue then
+            newText = newText .. " (changed from: " .. tostring(eggPrevValue) .. ")"
+        end
+        
+        eggLabel:UpdateName(newText)
+        eggPrevValue = newValue
+    end)
+end
+
+local easteritems = {}
+for _, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.EasterEggEvent.Main.Base.Main.ScrollingFrame:GetChildren()) do 
+    if v:IsA("Frame") then 
+        table.insert(easteritems, v.Name)
+    end 
+end
+
+sections.MainSection24:Dropdown({
+    Name = "Select Multi Items:",
+    Search = true,
+    Multi = true,
+    Required = false,
+    Options = easteritems,
+    Default = {"None"},
+    Callback = function(Value)
+        getgenv().WantedItemsForEasterEvent = {}
+        for i in pairs(Value) do
+            table.insert(getgenv().WantedItemsForEasterEvent, i)
+        end
+    end,
+}, "multieasteritemDP")
+
+sections.MainSection24:Toggle({
+    Name = "Auto Buy Multi Items",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoEasterBuy = value 
+        if value then
+            task.spawn(function()
+                while task.wait(.5) do 
+                    if not getgenv().AutoEasterBuy then break end
+                    
+                    for _, v in pairs(WantedItemsForEasterEvent) do
+                        game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server")
+                            :WaitForChild("Gameplay"):WaitForChild("EasterEgg"):FireServer(v, 1)
+                    end
+                end
+            end)
+        end
+    end,
+}, "AutoBuyEasterToggle")
+
+sections.MainSection24:Toggle({
+    Name = "Auto Open Capsule",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoOpenEgg = value
+        if value then
+            task.spawn(function()
+                while task.wait(.5) do 
+                    if not getgenv().AutoOpenEgg then break end
+                    
+                    local capsule = game:GetService("ReplicatedStorage").Player_Data[player.Name].Items["Egg Capsule"]
+                    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server")
+                        :WaitForChild("Lobby"):WaitForChild("ItemUse"):FireServer(capsule, {["SummonAmount"] = 1})
+                end
+            end)
+        end
+    end,
+}, "AutoOpenEggToggle")
+
+sections.MainSection13:Header({Name = "Misc:"})
+
+sections.MainSection13:Toggle({
+    Name = "Auto Hide UI When Executed",
+    Default = false,
+    Callback = function(value)
+        getgenv().HideGUI = value
+        if value then
+            task.spawn(function()
+                task.wait(5)
+                if getgenv().HideGUI then Window:SetState(false) end
+            end)
+        end
+    end,
+}, "AutoHideUI")
+
+local RunS = game:GetService("RunService")
+sections.MainSection13:Toggle({
+    Name = "Auto Save GPU [Less Lag]",
+    Default = false,
+    Callback = function(value)
+        getgenv().AutoSaveGPU = value
+        RunS:Set3dRenderingEnabled(not value)
+    end,
+}, "AutoSaveGPUToggle")
+
+sections.MainSection13:Toggle({
+    Name = "Auto Hide Player Info [Visual]",
+    Default = false,
+    Callback = function(value)
+        getgenv().HideName = value
+        if value then
+            task.spawn(function()
+                local textLabelNames = {
+                    "DatNguyenOnTop", "L-HUB comeback!", "NTR_Hentai.com",
+                    "kazoun owned you", "Pornhub.com", "furryloverhentai.com"
+                }
+                
+                local playerpath2 = game.Players.LocalPlayer.Character.Head.PlayerHeadGui
+                
+                while task.wait(1) do
+                    if not getgenv().HideName then break end
+                    
+                    local randomName = textLabelNames[math.random(1, #textLabelNames)]
+                    
+                    for _, v in pairs(playerpath2:GetDescendants()) do 
+                        if v:IsA("TextLabel") then 
+                            v.TextColor3 = Color3.new(math.random(), math.random(), math.random())
+                            v.Text = randomName
+                        end 
+                    end
+                end
+            end)
+        end
+    end,
+}, "AutoHideNameToggle")
+
+sections.MainSection13:Toggle({
+    Name = "TP Lobby If Glitched",
+    Default = false,
+    Callback = function(value)
+        getgenv().HPCheckToggle = value
+        if value then
+            task.spawn(function()
+                local hpLabel = workspace.Building.For_Use.Base.Red:WaitForChild("BaseHealthBar").HP.Values
+                
+                while task.wait(0.2) do 
+                    if not getgenv().HPCheckToggle then break end
+                    
+                    local currentHP = string.match(hpLabel.Text, "^(%d+)")
+                    if currentHP == "0" then
+                        local startTime = tick()
+                        
+                        while tick() - startTime < 30 do
+                            if not getgenv().HPCheckToggle then break end
+                            
+                            local newHP = string.match(hpLabel.Text, "^(%d+)")
+                            if newHP ~= "0" then break end
+                            
+                            task.wait(1)
+                        end
+                        
+                        if getgenv().HPCheckToggle and string.match(hpLabel.Text, "^(%d+)") == "0" then
+                            game:GetService("TeleportService"):Teleport(72829404259339, player)
+                        end
+                    end
+                end
+            end)
+        end
+    end,
+}, "AutoLobbyIfGlitchedToggle")
+
+sections.MainSection13:Button({
+    Name = "Remove Auto Load Config",
+    Callback = function()
+        if delfile then
+            delfile("Maclib/settings/autoload.txt")
+            Window:Notify({
+                Title = "L-hub notify",
+                Description = "Deleted AutoLoad Config, please rejoin.",
+                Lifetime = 10
+            })
+        else
+            Window:Notify({
+                Title = "L-hub notify",
+                Description = "Your executor not support delfile()...",
+                Lifetime = 10
+            })
+        end
+    end,
+})
+
+sections.MainSection13:Button({
+    Name = "Open/Close UI",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/YOies/HideGUI/refs/heads/main/KazounProjects"))()
+    end,
+})
+
+MacLib:SetFolder("Maclib")
+tabs.Settings:InsertConfigSection("Left")
+
+if game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.Main:FindFirstChild("BOTTOM") then
+    game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.Main.BOTTOM:Destroy()
+end
+
+tabs.Main:Select()
+MacLib:LoadAutoLoadConfig()
