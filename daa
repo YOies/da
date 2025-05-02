@@ -1,3 +1,4 @@
+--test agian
 game:GetService("Players").LocalPlayer.Idled:Connect(function()
     local vu = game:GetService("VirtualUser")
     vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
@@ -432,7 +433,7 @@ sections.MainSection3:Toggle({
     end,
 }, "AutoUltToggle")
 
-sections.MainSection3:Dropdown({
+local methodaction = sections.MainSection3:Dropdown({
     Name = "Select Action After: ",
     Multi = false,
     Required = true,
@@ -1452,7 +1453,7 @@ local completespecific = sections.MainSection16:Toggle({
             end
             
             local allLocked = true
-            for _, v in pairs(WantedRangers) do
+            for _, v in ipairs(WantedRangers) do
                 local world = string.match(v, "([^_]+)_")
                 if playergui[world][v].Inner:FindFirstChild("RangerStageLock") and 
                    playergui[world][v].Inner.RangerStageLock.Visible == false then
@@ -1473,7 +1474,7 @@ local completespecific = sections.MainSection16:Toggle({
                 break
             end
             
-            for _, v in pairs(WantedRangers) do
+            for _, v in ipairs(WantedRangers) do
                 local world = string.match(v, "([^_]+)_")
                 if playergui[world][v].Inner:FindFirstChild("RangerStageLock") and 
                    playergui[world][v].Inner.RangerStageLock.Visible == false then
